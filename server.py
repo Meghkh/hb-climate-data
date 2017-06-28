@@ -26,6 +26,13 @@ def index():
     return render_template("index.html")
 
 
+@app.route('/map')
+def test_map():
+    """Map."""
+
+    return render_template("map.html")
+
+
 if __name__ == "__main__":
     # We have to set debug=True here, since it has to be True at the
     # point that we invoke the DebugToolbarExtension

@@ -1,67 +1,49 @@
-<!DOCTYPE html>
-<html>
-  <head>
-  <meta charset="utf-8">
-      <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
-      <title>Mashups with google.maps.Data</title>
-      <style>
-        #map {
-          height: 100%;
-        }
-        /* Optional: Makes the sample page fill the window. */
-        html, body {
-          height: 100%;
-          margin: 0;
-          padding: 0;
-        }
-      </style>
-  </head>
-  <body>
-    <div id="map"></div>
+{% extends 'base.html' %}
+  {% block content %}
+    <div id="map" style="height:60em;width:75em;"></div>
     <script>
       function initMap() {
 
         map = new google.maps.Map(document.getElementById('map'), {
-          center: {lat: 40, lng: -100},
-          zoom: 4,
-          mapTypeId: 'terrain'
+          center: {lat: 0, lng: 0},
+          zoom: 2,
+          mapTypeId: 'terrain',
+          mapTypeControl: false,
+          zoomControl: false,
+          scaleControl: false,
           styles: mapStyle
         });
 
-        // var heatmap = new google.maps.visualization.HeatmapLayer({
-        //   data: heatmapData
-        // });
-        // heatmap.setMap(map);
+      var heatmap = new google.maps.visualization.HeatmapLayer({
+        data: heatmapData
+      });
+      heatmap.setMap(map);
 
-        var mapStyle = [{
-          'featureType': 'all',
-          'elementType': 'all',
-          'stylers': [{'visibility': 'off'}]
-        }, {
-          'featureType': 'landscape',
-          'elementType': 'geometry',
-          'stylers': [{'visibility': 'on'}, {'color': '#fcfcfc'}]
-        }, {
-          'featureType': 'water',
-          'elementType': 'labels',
-          'stylers': [{'visibility': 'off'}]
-        }, {
-          'featureType': 'water',
-          'elementType': 'geometry',
-          'stylers': [{'visibility': 'on'}, {'hue': '#5f94ff'}, {'lightness': 60}]
-        }];
-      }
+      var mapStyle = [{
+        'featureType': 'all',
+        'elementType': 'all',
+        'stylers': [{'visibility': 'off'}]
+      }, {
+        'featureType': 'landscape',
+        'elementType': 'geometry',
+        'stylers': [{'visibility': 'on'}, {'color': '#fcfcfc'}]
+      }, {
+        'featureType': 'water',
+        'elementType': 'labels',
+        'stylers': [{'visibility': 'off'}]
+      }, {
+        'featureType': 'water',
+        'elementType': 'geometry',
+        'stylers': [{'visibility': 'on'}, {'hue': '#5f94ff'}, {'lightness': 60}]
+      }];
+    }
 
-      // map.data.loadGeoJson(
-      // 'https://storage.googleapis.com/mapsdevsite/json/google.json');
-      // }
+    // map.data.loadGeoJson(
+    // 'https://storage.googleapis.com/mapsdevsite/json/google.json');
+    // }
 
     </script>
-    <script async defer
-        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDwrmHFnKVopnVG6TjhY02qUcd1CBulyv0&callback=initMap">
+    <script
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDwrmHFnKVopnVG6TjhY02qUcd1CBulyv0&libraries=visualization&callback=initMap" async defer>
     </script>
-    <script type="text/javascript"
-        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDwrmHFnKVopnVG6TjhY02qUcd1CBulyv0&libraries=visualization">
-    </script>
-  </body>
-</html>
+  {% endblock %}
