@@ -1,4 +1,4 @@
-"""Models and database functions for Ratings project."""
+"""Data model for climate reports."""
 
 from flask_sqlalchemy import SQLAlchemy
 
@@ -12,6 +12,23 @@ db = SQLAlchemy()
 # Model definitions
 
 
+class Report(db.Model):
+    """Climate data report instances."""
+
+    __tablename__ = "climate"
+
+    report_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
+    lng = db.Column(db.Float, nullable=False)
+    lat = db.Column(db.Float, nullable=False)
+    time = db.Column(db.Float, nullable=False)
+    land_mask = db.Column(db.Float, nullable=True)
+    temp_anom = db.Column(db.Float, nullable=True)
+    climate = db.Column(db.Float, nullable=True)
+
+    def __repr__self(self):
+        """Representation of an instance of a report."""
+
+        return "<Report report_id={report_id}, lat/lng={lat}/{lng}, time={time}, climate={climate}>".format(report_id=self.report_id, lat=self.lat, lng=self.lng, time=self.time, climate=self.climate)
 
 
 ##############################################################################
@@ -21,7 +38,7 @@ def connect_to_db(app):
     """Connect the database to our Flask app."""
 
     # Configure to use our PstgreSQL database
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///ratings'
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///climate'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     db.app = app
     db.init_app(app)

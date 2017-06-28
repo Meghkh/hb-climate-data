@@ -15,4 +15,27 @@ def get_data():
     temp = dataset.variables['temperature'][:]
     climatology = dataset.variables['climatology'][:]
 
-    print lons[0], lats[0], time[0], land_mask[0], temp[0], climatology[0]
+    return (lons, lats, time, land_mask, temp, climatology)
+
+
+def seed_reports():
+    """Seed report data into Report instances."""
+
+    lons, lats, time, land_mask, temp, climatology = get_data()
+    for i in enumerate(time):
+        for j in enumerate(lats):
+            for k in enumerate(lons):
+                if (k % 120 == 0):
+                    report = Report(lng=lons[k],
+                                    lat=lats[j],
+                                    time=time[i],
+                                    land_mask=land_mask[i][j],
+                                    temp_anom=temp[i][j][k],
+                                    climate=climatology[i][j][k])
+
+                    db.session.add(report)
+
+    db.session.commit()
+
+
+seed_reports()
