@@ -4,18 +4,19 @@ from model import Report, connect_to_db, db
 from server import app
 from netCDF4 import Dataset
 import numpy as np
+import math
 
 
 def get_data():
     """Open, get data and close nc file."""
 
     dataset = Dataset('data.nc')
-    lons = dataset.variables['longitude'][:]
-    lats = dataset.variables['latitude'][:]
-    time = dataset.variables['time'][:]
-    land_mask = dataset.variables['land_mask'][:]
-    temp = dataset.variables['temperature'][:]
-    climatology = dataset.variables['climatology'][:]
+    lons = dataset.variables['longitude'][:].tolist()
+    lats = dataset.variables['latitude'][:].tolist()
+    time = dataset.variables['time'][:].tolist()
+    land_mask = dataset.variables['land_mask'][:].tolist()
+    # temp = dataset.variables['temperature'][:]
+    climatology = dataset.variables['climatology'][:].tolist()
 
     return (lons, lats, time, land_mask, temp, climatology)
 
@@ -47,22 +48,30 @@ def seed_reports():
     db.session.commit()
 
 
-def seed_coords():
-    """Seed coordinate data."""
+def test_seed():
+    """Testing of data seed."""
 
     dataset = Dataset('data.nc')
     lons = dataset.variables['longitude'][:].tolist()
     lats = dataset.variables['latitude'][:].tolist()
     times = dataset.variables['time'][:].tolist()
+    land_mask = dataset.variables['land_mask'][:].tolist()
+    # try to grab just one month of temp data
+    # temp = dataset.variables['temperature'][:64800]
+    climatology = dataset.variables['climatology'][:].tolist()
 
-    for time in times:
-        for lat in lats:
-            for lng in lons:
-                if (time > 1950.6 and time < 1950.7):
+    for i, time in enumerate(times):
+        month = int(math.floor((time % 1) * 12))
+        for j, lat in enumerate(lats):
+            for k, lng in enumerate(lons):
+                if (time > 1850.0 and time < 1850.1):
                     report = Report(lng=lng,
                                     lat=lat,
-                                    time=time)
-                    print report.time, report.lng, report.lat
+                                    time=time,
+                                    land_mask=land_mask[j][k],
+                                    temp_anom=temp[time][j][k],
+                                    climate=climatology[month][j][k])
+                    print report.time, report.lng, report.lat, report.land_mask, report.temp_anom, report.climate
 
                     db.session.add(report)
 
