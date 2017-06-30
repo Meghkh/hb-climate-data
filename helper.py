@@ -1,4 +1,7 @@
-"""Helper functions."""
+"""
+** DEPRICATED **
+Helper functions.
+"""
 
 from netCDF4 import Dataset
 import numpy

@@ -18,8 +18,8 @@ class Report(db.Model):
     __tablename__ = "climate"
 
     report_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
-    lng = db.Column(db.Float, nullable=False)
     lat = db.Column(db.Float, nullable=False)
+    lng = db.Column(db.Float, nullable=False)
     time = db.Column(db.Float, nullable=False)
     land_mask = db.Column(db.Float, nullable=True)
     temp_anom = db.Column(db.Float, nullable=True)
