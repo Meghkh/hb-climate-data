@@ -2,7 +2,7 @@
 
 from jinja2 import StrictUndefined
 
-from flask import (Flask, render_template, redirect, request, flash, session, jsonify)
+from flask import Flask, render_template, redirect, request, flash, session, jsonify
 from flask_debugtoolbar import DebugToolbarExtension
 
 from model import connect_to_db, db, Report
@@ -28,9 +28,35 @@ def index():
 
 @app.route('/map')
 def test_map():
-    """Map."""
+    """Show test map."""
 
     return render_template("map.html")
+
+
+@app.route('/reports.json')
+def report_info():
+    """JSON information about reports."""
+
+    reports = {
+        report.report_id: {
+            lat: report.lat,
+            lng: report.lng,
+            time: report.time,
+            abs_temp: report.temp_anom + report.climate
+        } for report in db.session.query(Report).filter_by(Report.time <= 1850.05)}
+
+    # lats = [lat for lat in db.session.query(Report).filter_by(Report.lat).distinct()]
+    # lons = [lng for lng in db.session.query(Report).filter_by(Report.lng).distinct()]
+
+    # print len(lats), len(lons)
+
+    print "I'm working!", len(reports)
+
+    # coords = [(lat, lng) for lat in lats for lng in lons]
+
+    # print coords
+
+    return jsonify(reports)
 
 
 if __name__ == "__main__":

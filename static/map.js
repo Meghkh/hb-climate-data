@@ -1,6 +1,20 @@
 function initMap() {
 
-  map = new google.maps.Map(document.getElementById('map'), {
+
+  var heatmapData = [];
+
+  $.get('/reports.json', function (reports) {
+    var lat, lng, time, abs_temp, html;
+
+    for (var key in reports) {
+      report = reports[key];
+
+      // Add coordinate to heatmapData
+      heatmapData.push({location: new googe.maps.LatLng(report.lat, report.lng), weight: report.abs_temp});
+    }
+  });
+
+  var map = new google.maps.Map(document.getElementById('map'), {
     center: {lat: 0, lng: 0},
     zoom: 2,
     mapTypeId: 'terrain',
@@ -10,10 +24,10 @@ function initMap() {
     styles: mapStyle
   });
 
+
   var heatmap = new google.maps.visualization.HeatmapLayer({
     data: heatmapData
   });
-
   heatmap.setMap(map);
 
   var mapStyle = [{
@@ -32,8 +46,9 @@ function initMap() {
         'featureType': 'water',
         'elementType': 'geometry',
         'stylers': [{'visibility': 'on'}, {'hue': '#5f94ff'}, {'lightness': 60}]
-      }];
-    }
+      }
+  ];
+}
 
     
     // map.data.loadGeoJson(

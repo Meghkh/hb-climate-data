@@ -66,30 +66,18 @@ def test_seed():
 
     lons, lats, times, land_masks, temps, climatology = get_data()
 
-    print len(temps)
-
-
     # 130 million temperature data entries
     # i = 0
-    i = 6479970
+    i = 0
 
     for temp in temps.flat:
 
-        # what time is associated with i? time = i / 64000
-
-        # what lat is associasted with i? lat = i / 180
-
-        # what lng is associates with i? lng = i / 360
-
-        if i > 6500000:
+        if i > 10000000:
             break
 
         lng_index = i % 360  # will remain in range of 0-359 and reset to 0 after 360 iterations
         lat_index = (i / 360) % 180  # will be 0 for 360 iterations, then 1 for 360, then 2 for 360
         time_index = i / 64800  # will be 0 for 64800 iterations, then will be 1
-
-        print "temp: ", temp
-        # print "temps[i]: ", temps[][lat_index][lng_index]
 
         print '\tabout to process: i {}, lng_index {}, lat_index {}, time_index {}'.format(i, lng_index, lat_index, time_index)
 
@@ -117,7 +105,7 @@ def test_seed():
 
         print "processed:", report.time, report.lat, report.lng, report.land_mask, report.temp_anom, report.climate
 
-    db.session.commit()
+        db.session.commit()
 
 #---------------------------------------------------------------------#
 
