@@ -21,9 +21,8 @@ class Report(db.Model):
     lat = db.Column(db.Float, nullable=False)
     lng = db.Column(db.Float, nullable=False)
     time = db.Column(db.Float, nullable=False)
-    land_mask = db.Column(db.Float, nullable=True)
-    temp_anom = db.Column(db.Float, nullable=True)
-    climate = db.Column(db.Float, nullable=True)
+    time_index = db.Column(db.Integer, nullable=False)
+    abs_temp = db.Column(db.Float, nullable=False)
 
     def __repr__self(self):
         """Representation of an instance of a report."""

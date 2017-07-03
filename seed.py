@@ -6,6 +6,7 @@ from netCDF4 import Dataset
 import numpy as np
 import numpy.ma as ma
 import math
+import csv
 
 
 def get_data():
@@ -79,31 +80,29 @@ def test_seed():
         lat_index = (i / 360) % 180  # will be 0 for 360 iterations, then 1 for 360, then 2 for 360
         time_index = i / 64800  # will be 0 for 64800 iterations, then will be 1
 
-        print '\tabout to process: i {}, lng_index {}, lat_index {}, time_index {}'.format(i, lng_index, lat_index, time_index)
+        # print '\tabout to process: i {}, lng_index {}, lat_index {}, time_index {}'.format(i, lng_index, lat_index, time_index)
 
         month = int(math.floor((times[time_index] % 1) * 12))
-        land_mask = land_masks[lat_index][lng_index]
+        # land_mask = land_masks[lat_index][lng_index]
         climate = climatology[month][lat_index][lng_index]
 
         if temp != '--':
             report = Report(lng=float(lons[lng_index]),
                             lat=float(lats[lat_index]),
                             time=float(times[time_index]),
-                            land_mask=float(land_mask),
-                            temp_anom=float(temp),
-                            climate=float(climate))
+                            time_index=time_index,
+                            abs_temp=float(temp) + float(climate))
         else:
             report = Report(lng=float(lons[lng_index]),
                             lat=float(lats[lat_index]),
                             time=float(times[time_index]),
-                            land_mask=float(land_mask),
-                            temp_anom=None,
-                            climate=float(climate))
+                            time_index=time_index,
+                            abs_temp=float(climate))
 
         i += 1
         db.session.add(report)
 
-        print "processed:", report.time, report.lat, report.lng, report.land_mask, report.temp_anom, report.climate
+        print "processed:", report.time, report.lat, report.lng, report.abs_temp
 
         db.session.commit()
 
