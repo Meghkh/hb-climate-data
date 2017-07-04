@@ -4,9 +4,9 @@ from model import Report, connect_to_db, db
 from server import app
 from netCDF4 import Dataset
 import numpy as np
-import numpy.ma as ma
+# import numpy.ma as ma
 import math
-import csv
+import sys
 
 
 def get_data():
@@ -28,53 +28,21 @@ def get_data():
 
 
 def seed_reports():
-    """Seed report data into Report instances.
-
-    Arguments:
-    data: data to be transformed (shape=(n,), dtype='float64')
-    """
-
-    lons, lats, time, land_mask, temp, climatology = get_data()
-
-    for i, time in enumerate(times):
-        month = int(math.floor((time % 1) * 12))
-        for j, lat in enumerate(lats):
-            for k, lng in enumerate(lons):
-                if (time > 1850.0 and time < 1850.1):
-                    if temp.flat[i] == '--':
-                        report = Report(lng=lng,
-                                        lat=lat,
-                                        time=time,
-                                        land_mask=land_mask[j][k],
-                                        # temp_anom=None,
-                                        climate=climatology[month][j][k])
-                    else:
-                        report = Report(lng=lng,
-                                        lat=lat,
-                                        time=time,
-                                        land_mask=land_mask[j][k],
-                                        # temp_anom=i,
-                                        climate=climatology[month][j][k])
-                        print report.time, report.lng, report.lat, report.land_mask, report.temp_anom, report.climate
-
-                        db.session.add(report)
-
-    db.session.commit()
-
-
-def test_seed():
-    """Testing of data seed."""
+    """Seed report data into Report instances."""
 
     lons, lats, times, land_masks, temps, climatology = get_data()
 
+    f = open(sys.argv[-1], "r")
+    start = int(f.read())
+    f.close()
+
     # 130 million temperature data entries
-    # i = 0
-    i = 0
+    i = start
 
     for temp in temps.flat:
 
-        if i > 10000000:
-            break
+        # if i > 64800:
+        #     break
 
         lng_index = i % 360  # will remain in range of 0-359 and reset to 0 after 360 iterations
         lat_index = (i / 360) % 180  # will be 0 for 360 iterations, then 1 for 360, then 2 for 360
@@ -104,7 +72,13 @@ def test_seed():
 
         print "processed:", report.time, report.lat, report.lng, report.abs_temp
 
-        db.session.commit()
+        if i % 400 == 0:
+            db.session.commit()
+            name = "seed_status/stoprecord" + str(i)
+            f = open(name, 'w')
+            f.write(str(i))
+            f.close()
+
 
 #---------------------------------------------------------------------#
 
@@ -112,4 +86,4 @@ if __name__ == '__main__':
     connect_to_db(app)
     db.create_all()
 
-    test_seed()
+    seed_reports()
