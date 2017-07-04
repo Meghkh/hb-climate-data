@@ -72,7 +72,7 @@ def seed_reports():
 
         print "processed:", report.time, report.lat, report.lng, report.abs_temp
 
-        if i % 400 == 0:
+        if i % 1000 == 0:
             db.session.commit()
             name = "seed_status/stoprecord" + str(i)
             f = open(name, 'w')
