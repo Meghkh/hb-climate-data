@@ -33,24 +33,35 @@ def test_map():
     return render_template("map.html")
 
 
+@app.route('/ft')
+def test_ft():
+    """Show test fusion table."""
+
+    return render_template("ft_trial.html")
+
+
 @app.route('/reports.json')
 def report_info():
     """JSON information about reports."""
 
     reports = {
         report.report_id: {
-            lat: report.lat,
-            lng: report.lng,
-            time: report.time,
-            abs_temp: report.temp_anom + report.climate
-        } for report in db.session.query(Report).filter_by(Report.time <= 1850.05)}
+            'lat': report.lat,
+            'lng': report.lng,
+            'time': report.time,
+            'time_index': report.time_index,
+            'abs_temp': report.abs_temp
+        }
+        for report in db.session.query(Report).filter(Report.time >= 1880.05, Report.time <= 1890.05).all()
+        # for report in Report.query.all()
+    }
 
     # lats = [lat for lat in db.session.query(Report).filter_by(Report.lat).distinct()]
     # lons = [lng for lng in db.session.query(Report).filter_by(Report.lng).distinct()]
 
     # print len(lats), len(lons)
 
-    print "I'm working!", len(reports)
+    # print "I'm working!", len(reports)
 
     # coords = [(lat, lng) for lat in lats for lng in lons]
 

@@ -29,6 +29,9 @@ class Report(db.Model):
 
         return "<Report report_id={report_id}, lat/lng={lat}/{lng}, time={time}, climate={climate}>".format(report_id=self.report_id, lat=self.lat, lng=self.lng, time=self.time, climate=self.climate)
 
+# class Coordinates(db.Model):
+#     """Geographical latitude/longitude coordinate pair."""
+
 
 ##############################################################################
 # Helper functions
@@ -37,7 +40,7 @@ def connect_to_db(app):
     """Connect the database to our Flask app."""
 
     # Configure to use our PstgreSQL database
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///climate'
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///climateUSdecades'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     db.app = app
     db.init_app(app)

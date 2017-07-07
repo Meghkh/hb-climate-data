@@ -6,13 +6,13 @@ from netCDF4 import Dataset
 import numpy as np
 # import numpy.ma as ma
 import math
-import sys
+# import sys
 
 
 def get_data():
     """Open, get data and close nc file."""
 
-    dataset = Dataset('data.nc')
+    dataset = Dataset('static/data.nc')
     np.seterr(invalid='ignore')
     lons = dataset.variables['longitude'][:].tolist()
     lats = dataset.variables['latitude'][:].tolist()
@@ -32,23 +32,37 @@ def seed_reports():
 
     lons, lats, times, land_masks, temps, climatology = get_data()
 
-    f = open(sys.argv[-1], "r")
-    start = int(f.read())
-    f.close()
+    # f = open(sys.argv[-1], "r")
+    # start = int(f.read())
+    # f.close()
 
     # 130 million temperature data entries
-    i = start
+    i = 0
 
     for temp in temps.flat:
 
-        # if i > 64800:
-        #     break
+        # for limiting data seeding by time
+        # time_start = 19  # begin with 1869
+        # if i < (64800*12*time_start):
+        #     i += 1
+        #     continue
 
+        # logic following lat, lng and time indexes
         lng_index = i % 360  # will remain in range of 0-359 and reset to 0 after 360 iterations
         lat_index = (i / 360) % 180  # will be 0 for 360 iterations, then 1 for 360, then 2 for 360
         time_index = i / 64800  # will be 0 for 64800 iterations, then will be 1
+        print '\tabout to process: i {}, lng_index {}, lat_index {}, time_index {}'.format(i, lng_index, lat_index, time_index)
 
-        # print '\tabout to process: i {}, lng_index {}, lat_index {}, time_index {}'.format(i, lng_index, lat_index, time_index)
+        # for limiting data to specific coordinates
+        # e.g. USA (lng_min = -126, lng_max = -66, lat_min = 25.5, lat_max = 50.5)
+        lng_min = -126
+        lng_max = -66
+        lat_min = 25.5
+        lat_max = 50.5
+        time_series_index = 120  # Jan 1850, Jan 1860, Jan 1870....
+        if (lons[lng_index] < lng_min or lons[lng_index] > lng_max or lats[lat_index] < lat_min or lats[lat_index] > lat_max or time_index % time_series_index != 0):
+            i += 1
+            continue
 
         month = int(math.floor((times[time_index] % 1) * 12))
         # land_mask = land_masks[lat_index][lng_index]
@@ -72,12 +86,15 @@ def seed_reports():
 
         print "processed:", report.time, report.lat, report.lng, report.abs_temp
 
-        if i % 1000 == 0:
+        if i % 400 == 0:
             db.session.commit()
-            name = "seed_status/stoprecord" + str(i)
-            f = open(name, 'w')
-            f.write(str(i))
-            f.close()
+
+
+
+            # name = "seed_status/stoprecord" + str(i)
+            # f = open(name, 'w')
+            # f.write(str(i))
+            # f.close()
 
 
 #---------------------------------------------------------------------#
