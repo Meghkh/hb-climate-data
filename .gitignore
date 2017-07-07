@@ -3,3 +3,4 @@ env
 climate_data.csv
 data.nc
 climatetest1869.sql
+.DS_Store

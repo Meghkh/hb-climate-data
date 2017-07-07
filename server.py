@@ -52,7 +52,7 @@ def report_info():
             'time_index': report.time_index,
             'abs_temp': report.abs_temp
         }
-        for report in db.session.query(Report).filter(Report.time >= 1880.05, Report.time <= 1890.05).all()
+        for report in db.session.query(Report).filter(Report.time >= 1980.05, Report.time <= 1990.05).all()
         # for report in Report.query.all()
     }
 
