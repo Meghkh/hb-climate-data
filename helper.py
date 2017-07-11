@@ -7,7 +7,7 @@ from model import db, Report
 
 US_LNG_MAX = -66
 US_LNG_MIN = -126
-US_LAT_MAX = 50.0
+US_LAT_MAX = 50.5
 US_LAT_MIN = 25.5
 
 
