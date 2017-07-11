@@ -5,6 +5,8 @@ Helper functions.
 
 from netCDF4 import Dataset
 import numpy
+from flask import jsonify
+from model import db, Report
 
 
 def get_data():
@@ -41,4 +43,21 @@ def seed_reports():
     db.session.commit()
 
 
-seed_reports()
+def get_year_data(year):
+    """"""
+
+    reports = {
+        report.report_id: {
+            'lat': report.lat,
+            'lng': report.lng,
+            'time': report.time,
+            'time_index': report.time_index,
+            'abs_temp': report.abs_temp
+        }
+        for report in db.session.query(Report).filter(Report.time_index == year).all()
+    }
+
+    return jsonify(reports)
+
+
+# seed_reports()

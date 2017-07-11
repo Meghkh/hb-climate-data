@@ -5,6 +5,10 @@ from jinja2 import StrictUndefined
 from flask import Flask, render_template, redirect, request, flash, session, jsonify
 from flask_debugtoolbar import DebugToolbarExtension
 
+from helper import get_year_data
+
+# from sqlalchemy import distinct
+
 from model import connect_to_db, db, Report
 
 
@@ -30,7 +34,18 @@ def index():
 def test_map():
     """Show test map."""
 
-    return render_template("map.html")
+    print request.args
+    time_index = request.args.get('time_index')
+    # session['year'] = year
+
+    # session.clear()
+
+    data = get_year_data(time_index)
+    print data
+
+    #call helper fn passed a year to get data from db ()
+
+    return render_template("map.html", time_index=time_index)
 
 
 @app.route('/ft')
@@ -44,30 +59,15 @@ def test_ft():
 def report_info():
     """JSON information about reports."""
 
-    reports = {
-        report.report_id: {
-            'lat': report.lat,
-            'lng': report.lng,
-            'time': report.time,
-            'time_index': report.time_index,
-            'abs_temp': report.abs_temp
-        }
-        for report in db.session.query(Report).filter(Report.time >= 1980.05, Report.time <= 1990.05).all()
-        # for report in Report.query.all()
-    }
+    print request.args
+    # years = db.session.query(Report).distinct(Report.time).all()
+    # print years
 
-    # lats = [lat for lat in db.session.query(Report).filter_by(Report.lat).distinct()]
-    # lons = [lng for lng in db.session.query(Report).filter_by(Report.lng).distinct()]
+    time_index = request.args.get('time_index')
+    print "time_index:", time_index
 
-    # print len(lats), len(lons)
-
-    # print "I'm working!", len(reports)
-
-    # coords = [(lat, lng) for lat in lats for lng in lons]
-
-    # print coords
-
-    return jsonify(reports)
+    data = get_year_data(time_index)
+    return data
 
 
 if __name__ == "__main__":

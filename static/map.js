@@ -1,11 +1,39 @@
 var map, heatmapData, heatmap;
 
+function changeMap(evt) {
+
+  heatmap.setMap(null);
+  heatmapData = [];
+  var timeIndex = $('#mapview').val();
+
+  $.get('reports.json', {'time_index': timeIndex}, function (reports) {
+
+    console.log(timeIndex);
+    console.log(reports);
+
+    for (var key in reports) {
+      report = reports[key];
+
+      // Add coordinate to heatmapData
+      heatmapData.push({location: new google.maps.LatLng(report['lat'], report['lng']), weight: report['abs_temp']});
+    }
+
+    heatmap = new google.maps.visualization.HeatmapLayer({
+      data: heatmapData,
+      maxIntensity: 20
+    });
+    heatmap.setMap(map);
+  });
+}
+
 function initMap() {
 
   heatmapData = [];
 
-  $.get('/reports.json', function (reports) {
-    var lat, lng, time, abs_temp;
+  var timeIndex = $('#mapview').val();
+  console.log(timeIndex);
+
+  $.get('/reports.json', {'time_index': timeIndex}, function (reports) {
 
     for (var key in reports) {
       report = reports[key];
@@ -17,7 +45,7 @@ function initMap() {
 
   map = new google.maps.Map(document.getElementById('map'), {
     center: {lat: 38.5, lng: -96},
-    zoom: 4,
+    zoom: 3,
     mapTypeId: 'terrain',
     mapTypeControl: false,
     zoomControl: false,
@@ -52,7 +80,9 @@ function initMap() {
   // ];
 }
 
-    
+$('#selectmap').on('click', changeMap);
+
+
     // map.data.loadGeoJson(
     // 'https://storage.googleapis.com/mapsdevsite/json/google.json');
     // }
