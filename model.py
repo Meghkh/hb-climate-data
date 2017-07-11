@@ -29,9 +29,6 @@ class Report(db.Model):
 
         return "<Report report_id={report_id}, lat/lng={lat}/{lng}, time={time}, climate={climate}>".format(report_id=self.report_id, lat=self.lat, lng=self.lng, time=self.time, climate=self.climate)
 
-# class Coordinates(db.Model):
-#     """Geographical latitude/longitude coordinate pair."""
-
 
 ##############################################################################
 # Helper functions

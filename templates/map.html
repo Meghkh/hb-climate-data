@@ -4,7 +4,6 @@
   <script src="https://code.jquery.com/jquery.js"></script>
   <div>
     <h3>US Climate Data for year</h3>
-    <h5>View heatmap for {{ time_index }}:</h5>
     <select name="time_index" id="mapview">
         <option value='0'>1850</option>
         <option value='120'>1860</option>
@@ -26,11 +25,10 @@
     </select>
     <button id="selectmap">Show</button>
   </div>
-  <div id="map" style="height:40em"></div>
+  <div id="map" style="height:30em;width:50em;margin:3em;"></div>
   <script src="/static/map.js"></script>
   <script
     src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDwrmHFnKVopnVG6TjhY02qUcd1CBulyv0&libraries=visualization&callback=initMap" async defer>
   </script>
-
 
   {% endblock %}

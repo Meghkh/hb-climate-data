@@ -1,7 +1,10 @@
+// declare variables outside of functions to be able to access them in console
+// or can use debugger; to have access where it stops the code
 var map, heatmapData, heatmap;
 
 function changeMap(evt) {
 
+  // map needs to reset to not have displays stacked
   heatmap.setMap(null);
   heatmapData = [];
   var timeIndex = $('#mapview').val();
@@ -45,7 +48,7 @@ function initMap() {
 
   map = new google.maps.Map(document.getElementById('map'), {
     center: {lat: 38.5, lng: -96},
-    zoom: 3,
+    zoom: 4,
     mapTypeId: 'terrain',
     mapTypeControl: false,
     zoomControl: false,
@@ -60,24 +63,24 @@ function initMap() {
   });
   heatmap.setMap(map);
 
-  // var mapStyle = [{
-  //       'featureType': 'all',
-  //       'elementType': 'all',
-  //       'stylers': [{'visibility': 'off'}]
-  //     }, {
-  //       'featureType': 'landscape',
-  //       'elementType': 'geometry',
-  //       'stylers': [{'visibility': 'on'}, {'color': '#fcfcfc'}]
-  //     }, {
-  //       'featureType': 'water',
-  //       'elementType': 'labels',
-  //       'stylers': [{'visibility': 'off'}]
-  //     }, {
-  //       'featureType': 'water',
-  //       'elementType': 'geometry',
-  //       'stylers': [{'visibility': 'on'}, {'hue': '#5f94ff'}, {'lightness': 60}]
-  //     }
-  // ];
+  var mapStyle = [{
+        'featureType': 'all',
+        'elementType': 'all',
+        'stylers': [{'visibility': 'off'}]
+      }, {
+        'featureType': 'landscape',
+        'elementType': 'geometry',
+        'stylers': [{'visibility': 'on'}, {'color': '#fcfcfc'}]
+      }, {
+        'featureType': 'water',
+        'elementType': 'labels',
+        'stylers': [{'visibility': 'off'}]
+      }, {
+        'featureType': 'water',
+        'elementType': 'geometry',
+        'stylers': [{'visibility': 'on'}, {'hue': '#5f94ff'}, {'lightness': 60}]
+      }
+  ];
 }
 
 $('#selectmap').on('click', changeMap);
