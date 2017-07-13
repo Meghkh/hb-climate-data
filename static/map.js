@@ -24,8 +24,8 @@ function changeMap(evt) {
 
     heatmap = new google.maps.visualization.HeatmapLayer({
       data: heatmapData,
-      maxIntensity: 150,
-      radius: 35,
+      maxIntensity: 200,
+      radius: 30,
       dissipating: true,
       gradient: [
         'rgba(0, 255, 255, 0)',
@@ -78,8 +78,8 @@ function initMap() {
 
   heatmap = new google.maps.visualization.HeatmapLayer({
     data: heatmapData,
-    maxIntensity: 150,
-    radius: 35,
+    maxIntensity: 200,
+    radius: 30,
     dissipating: true,
     gradient: [
       'rgba(0, 255, 255, 0)',
@@ -99,25 +99,6 @@ function initMap() {
     ],
   });
   heatmap.setMap(map);
-
-  var mapStyle = [{
-        'featureType': 'all',
-        'elementType': 'all',
-        'stylers': [{'visibility': 'off'}]
-      }, {
-        'featureType': 'landscape',
-        'elementType': 'geometry',
-        'stylers': [{'visibility': 'on'}, {'color': '#fcfcfc'}]
-      }, {
-        'featureType': 'water',
-        'elementType': 'labels',
-        'stylers': [{'visibility': 'off'}]
-      }, {
-        'featureType': 'water',
-        'elementType': 'geometry',
-        'stylers': [{'visibility': 'on'}, {'hue': '#5f94ff'}, {'lightness': 60}]
-      }
-  ];
 }
 
 $('#selectmap').on('click', changeMap);

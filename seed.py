@@ -9,8 +9,8 @@ import datetime
 
 # for limiting data to specific coordinates
 # e.g. USA (lng_min = -126, lng_max = -66, lat_min = 25.5, lat_max = 50.5)
-US_LNG_MAX = -66.5
-US_LNG_MIN = -126.5
+US_LNG_MAX = -66
+US_LNG_MIN = -126
 US_LAT_MAX = 50.5
 US_LAT_MIN = 25.5
 TIME_SERIES_INDEX = 120  # Jan 1850, Jan 1860, Jan 1870....
@@ -50,7 +50,7 @@ def seed_reports():
 
         # shape of temps: (2009, 180, 360) -> (time, lat, lng)
         # as a flattened array, we have one index to account for all of these values
-        if (i < 124410000 or i > 124600000):
+        if (i < 124410000 or i > 124500000):
             i += 1
             continue
 
@@ -61,8 +61,8 @@ def seed_reports():
         # time: 64800 locations for given point in time. will be 0 for 64800 iterations (Jan 1850), then will be 1 (Feb 1850)
         time_index = i / 64800
 
-        if i % 10000 == 0:
-            print '\tstatus: i {}, lng {}, lng_index {}, lat {}, lat_index {}, year {}, time_index {}'.format(i, lons[lng_index], lng_index, lats[lat_index], lat_index, times[time_index], time_index)
+        # if i % 10000 == 0:
+        #     print '\tstatus: i {}, lng {}, lng_index {}, lat {}, lat_index {}, year {}, time_index {}'.format(i, lons[lng_index], lng_index, lats[lat_index], lat_index, times[time_index], time_index)
 
         if (lons[lng_index] < US_LNG_MIN or lons[lng_index] > US_LNG_MAX or lats[lat_index] < US_LAT_MIN or lats[lat_index] > US_LAT_MAX or time_index % TIME_SERIES_INDEX != 0):
             i += 1
