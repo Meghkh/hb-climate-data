@@ -5,7 +5,7 @@ from jinja2 import StrictUndefined
 from flask import Flask, render_template, request, flash
 from flask_debugtoolbar import DebugToolbarExtension
 
-from helper import get_year_data
+# from helper import get_year_data
 
 # from sqlalchemy import distinct
 
@@ -68,6 +68,23 @@ def report_info():
 
     data = get_year_data(time_index)
     return data
+
+
+def get_year_data(index):
+    """Get climate data for the provided year from database."""
+
+    reports = {
+        report.report_id: {
+            'lat': report.lat,
+            'lng': report.lng,
+            'time': report.time,
+            'time_index': report.time_index,
+            'abs_temp': report.abs_temp
+        }
+        for report in db.session.query(Report).filter(Report.time_index == index).all()
+    }
+
+    return jsonify(reports)
 
 
 if __name__ == "__main__":

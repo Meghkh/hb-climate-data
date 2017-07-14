@@ -5,6 +5,9 @@ var MIN_TEMP = -29.152003288269;
 
 function changeMap(evt) {
 
+  //can out the rerender as part of the function, ensure that rerender is subsequent to AJAX - do that with a callback
+  // changing state is still better way to do it, but this could explain seemingly inconsistent behavior (all about timing of async parts)
+
   // map needs to reset to not have displays stacked
   heatmap.setMap(null);
   heatmapData = [];

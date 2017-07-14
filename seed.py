@@ -15,6 +15,8 @@ US_LAT_MAX = 50.5
 US_LAT_MIN = 25.5
 TIME_SERIES_INDEX = 120  # Jan 1850, Jan 1860, Jan 1870....
 
+GLOBAL_LAT_INDEX_SKIP = [0, 1, 178, 179]
+
 
 def get_nc_data():
     """Open, get data and close nc file."""
@@ -41,60 +43,72 @@ def seed_reports():
     start = datetime.datetime.now()
     print "{}, data received, begin parsing\n".format(start)
 
-    for i, temp in enumerate(temps.flat):
-        # for limiting data seeding by time
-        # time_start = 19  # begin with 1869
-        # if i < (64800*12*time_start):
-        #     i += 1
-        #     continue
+    temp_lat_data = {}
+    sum_abs_temp = 0
 
+    for i, temp in enumerate(temps.flat):
         # shape of temps: (2009, 180, 360) -> (time, lat, lng)
         # as a flattened array, we have one index to account for all of these values
-        if (i < 124410000 or i > 124500000):
-            i += 1
-            continue
+
+        # just begin with first month, Jan 1850
+        if (i >= 1200):
+            break
 
         # lng: range(0-359) for 360 longitudes/iterations
-        lng_index = i % 360
         # lat: range(0-179) will be 0 for 360 iterations, then 1 for 360, then 2 for 360
-        lat_index = (i / 360) % 180
         # time: 64800 locations for given point in time. will be 0 for 64800 iterations (Jan 1850), then will be 1 (Feb 1850)
         time_index = i / 64800
+        month = int(math.floor((times[time_index] % 1) * 12))
+        lng_index = i % 360
+        lat_index = (i / 360) % 180
 
-        # if i % 10000 == 0:
-        #     print '\tstatus: i {}, lng {}, lng_index {}, lat {}, lat_index {}, year {}, time_index {}'.format(i, lons[lng_index], lng_index, lats[lat_index], lat_index, times[time_index], time_index)
+        climate = climatology[month][lat_index][lng_index]
+        abs_temp = 0
 
-        if (lons[lng_index] < US_LNG_MIN or lons[lng_index] > US_LNG_MAX or lats[lat_index] < US_LAT_MIN or lats[lat_index] > US_LAT_MAX or time_index % TIME_SERIES_INDEX != 0):
-            i += 1
+        if lat_index in GLOBAL_LAT_INDEX_SKIP:
+            print 'skip current_lat {}, current_lng {}, i {}'.format(lats[lat_index], lons[lng_index], i)
             continue
 
-        # shape of climate: (12, 180, 360) -> (month, lat, lng)
-        month = int(math.floor((times[time_index] % 1) * 12))
-        # land_mask = land_masks[lat_index][lng_index]
-        climate = climatology[month][lat_index][lng_index]
-
-        # if i % 1000 == 0:
-        #     print 'processing: i {}, lng {}, lng_index {}, lat {}, lat_index {}, year {}, month {}, time_index {}'.format(i, lons[lng_index], lng_index, lats[lat_index], lat_index, times[time_index], month, time_index)
+        # the next 360 values are one latitude, grab them 8 at a time 45 times, for 45 chunks of 8 longitudes
+        # take lons[lng_index]
 
         if temp != '--':
-            report = Report(lng=float(lons[lng_index]),
-                            lat=float(lats[lat_index]),
-                            time=float(times[time_index]),
-                            time_index=time_index,
-                            abs_temp=float(temp) + float(climate))
+            abs_temp = temp + climate
         else:
-            report = Report(lng=float(lons[lng_index]),
-                            lat=float(lats[lat_index]),
-                            time=float(times[time_index]),
-                            time_index=time_index,
-                            abs_temp=float(climate))
+            abs_temp = climate
 
-        print "processed:", month, report.time, report.lat, report.lng, report.abs_temp
-        i += 1
-        db.session.add(report)
+        if (i % 8 != 0):
+            print 'CURRENT LNGS'
+            sum_abs_temp += abs_temp
+        else:
+            print 'START SET OF LNGS'
+            entry_lng = lons[lng_index] - 3.5
+            if entry_lng in range(-180, 180):
+                temp_lat_data[entry_lng] = sum_abs_temp / 8
+            sum_abs_temp = abs_temp
 
-        if i % 400 == 0:
-            db.session.commit()
+        print '\tstatus: i {}, lng {}, lat {}, lng_index {}, lat_index {}, temp {}, abs_temp {}, sum_abs_temp {}'.format(i, lons[lng_index], lats[lat_index], lng_index, lat_index, temp, abs_temp, sum_abs_temp)
+
+        for k, v in temp_lat_data.iteritems():
+            print 'key: lng, value:x avg_abs_temp {}'.format(k, v)
+        # print '\tstatus: i {}, lng {}, lng_index {}, lat {}, lat_index {}, temp {}'.format(i, lons[current_lng], current_lng, lats[current_lat], current_lat)
+
+            # if i % 10000 == 0:
+            #     print '\tstatus: i {}, lng {}, lng_index {}, lat {}, lat_index {}, year {}, time_index {}'.format(i, lons[lng_index], lng_index, lats[lat_index], lat_index, times[time_index], time_index)
+            # if i % 1000 == 0:
+            #     print 'processing: i {}, lng {}, lng_index {}, lat {}, lat_index {}, year {}, month {}, time_index {}'.format(i, lons[lng_index], lng_index, lats[lat_index], lat_index, times[time_index], month, time_index)
+
+        # report = Report(lng=float(lons[lng_index]),
+        #                 lat=float(lats[lat_index]),
+        #                 time=float(times[time_index]),
+        #                 time_index=time_index,
+        #                 abs_temp=float(abs_temp))
+
+        # print "processed:", month, report.time, report.lat, report.lng, report.abs_temp
+            # db.session.add(report)
+
+            # if i % 400 == 0:
+            #     db.session.commit()
 
     end = datetime.datetime.now()
     print "start {},\nend {}".format(start, end)
