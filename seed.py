@@ -16,6 +16,7 @@ US_LAT_MIN = 25.5
 TIME_SERIES_INDEX = 120  # Jan 1850, Jan 1860, Jan 1870....
 
 GLOBAL_LAT_INDEX_SKIP = [0, 1, 178, 179]
+COMPLETE_LAT_ROW = 2280
 
 
 def get_nc_data():
@@ -38,59 +39,105 @@ def get_nc_data():
 def seed_reports():
     """Seed report data into Report instances."""
 
-    lons, lats, times, land_masks, temps, climatology = get_nc_data()
-
+    # **************************************************************************
+    # start timer, get data from nc file, clock data receipt, initiate variables
+    # **************************************************************************
     start = datetime.datetime.now()
-    print "{}, data received, begin parsing\n".format(start)
+    lons, lats, times, land_masks, temps, climatology = get_nc_data()
+    got_data = datetime.datetime.now()
 
-    temp_lat_data = {}
     sum_abs_temp = 0
+    coordinate_data = {}
+    lat_data = {}
+    temp_lat_data = {}
 
     for i, temp in enumerate(temps.flat):
-        # shape of temps: (2009, 180, 360) -> (time, lat, lng)
-        # as a flattened array, we have one index to account for all of these values
-
-        # just begin with first month, Jan 1850
-        if (i >= 1200):
+        if (i >= 10000):
             break
-
-        # lng: range(0-359) for 360 longitudes/iterations
-        # lat: range(0-179) will be 0 for 360 iterations, then 1 for 360, then 2 for 360
-        # time: 64800 locations for given point in time. will be 0 for 64800 iterations (Jan 1850), then will be 1 (Feb 1850)
-        time_index = i / 64800
-        month = int(math.floor((times[time_index] % 1) * 12))
+        # **************************************************************************
+        # create index trackers to calculate position in data
+        # **************************************************************************
+        # shape of temps: (2009, 180, 360) -> (time, lat, lng)
+        # lng_index: increments with i in range(0-359) lngs/i's for 1 row/lat_index
+        # lat_index: increments every 360i in range(0-179) lats/(360 i/lng_index) for 1 time_index/full map
+        # month_index: increments every 360*180*i in range(0-64799) for a full map/64800 locations
+        # year_index: increments every 64800*12 -- decade_index: increments ever 64000*12*10
         lng_index = i % 360
         lat_index = (i / 360) % 180
+        month_index = i / (360 * 180)
+        # month_index2 = (i / 64800) %
+        # year_index = i / (360 * 180 * 12)
+        # decade_index = i / (360 * 180 * 120)
 
+        # ***********************************************************************************
+        # calculate month from report time decimal to get monthly climate report for location
+        # calculate absolute temperature
+        # ***********************************************************************************
+        month = int(math.floor((times[month_index] % 1) * 12))
         climate = climatology[month][lat_index][lng_index]
+
         abs_temp = 0
-
-        if lat_index in GLOBAL_LAT_INDEX_SKIP:
-            print 'skip current_lat {}, current_lng {}, i {}'.format(lats[lat_index], lons[lng_index], i)
-            continue
-
-        # the next 360 values are one latitude, grab them 8 at a time 45 times, for 45 chunks of 8 longitudes
-        # take lons[lng_index]
-
         if temp != '--':
             abs_temp = temp + climate
         else:
             abs_temp = climate
 
+        # **********************************************************************
+        # iteration conditions
+        # escapes:
+        # 1) ignore first 2 and last 2 rows of latitudes for even area grids
+        # 2) time index to get decade data
+        # flags every:
+        # 1) 8 lngs averaged and processed (1 lat grid)
+        # 2) 45 entries of 8 complete grids (1 lat row)
+        # 3) 22 entires of 45 8x8 complete grids (1 full map or 990 entries)
+        # **********************************************************************
+        if lat_index in GLOBAL_LAT_INDEX_SKIP:
+            print 'skip current_lat {}, current_lng {}, i {}'.format(lats[lat_index], lons[lng_index], i)
+            continue
+
+        # if i / decade_index == 0:
+        #     print '**********************************************************************'
+        #     print 'NEW DECADE HOPEFULLY NEW MAP JAN OF YEAR ENDING IN 0. month {}, month_index{}'.format(month, month_index)
+        #     print '**********************************************************************'
+
+        # **********************************************************************
+        # flag 2880 data entries, 1 of 22 lat rows containing 45 8x8 lats/lngs
+        #   grid of 64 averaged temperature data
+        # temp_lat_data can reset
+        # **********************************************************************
+        if i % COMPLETE_LAT_ROW == 0:
+            if temp_lat_data:
+                entry_lat = lats[lat_index] - 1.5
+                if entry_lat in range(-90, 90):
+                    lat_data[entry_lat] = temp_lat_data
+                    print 'lat_data dict'
+                    for k, v in sorted(lat_data.iteritems()):
+                        print 'key: {}, value: avg_abs_temp {}'.format(k, v)
+            print '**********************************'
+            print 'COMPLETE_LAT_ROW - 8 lats averaged'
+            print '**********************************'
+            temp_lat_data = {}
+
+        # **********************************************************************
+        # flag for 8 lngs processed
+        # **********************************************************************
         if (i % 8 != 0):
             print 'CURRENT LNGS'
             sum_abs_temp += abs_temp
         else:
-            print 'START SET OF LNGS'
+            print '**START SET OF LNGS** **{},{} -- {},{}**'.format(lats[lat_index], lons[lng_index], lat_index, lng_index)
+            print 'temp_data dict, i {}'.format(i)
+            for k, v in sorted(temp_lat_data.iteritems()):
+                print 'key: {}, value: avg_abs_temp {}'.format(k, v)
             entry_lng = lons[lng_index] - 3.5
             if entry_lng in range(-180, 180):
                 temp_lat_data[entry_lng] = sum_abs_temp / 8
             sum_abs_temp = abs_temp
 
+        # **********************************************************************
         print '\tstatus: i {}, lng {}, lat {}, lng_index {}, lat_index {}, temp {}, abs_temp {}, sum_abs_temp {}'.format(i, lons[lng_index], lats[lat_index], lng_index, lat_index, temp, abs_temp, sum_abs_temp)
 
-        for k, v in temp_lat_data.iteritems():
-            print 'key: lng, value:x avg_abs_temp {}'.format(k, v)
         # print '\tstatus: i {}, lng {}, lng_index {}, lat {}, lat_index {}, temp {}'.format(i, lons[current_lng], current_lng, lats[current_lat], current_lat)
 
             # if i % 10000 == 0:
@@ -111,7 +158,8 @@ def seed_reports():
             #     db.session.commit()
 
     end = datetime.datetime.now()
-    print "start {},\nend {}".format(start, end)
+    print "start {},\tdata {},\tend {}".format(start, got_data, end)
+    print "data gathering {},\tother {}, total {}".format((got_data - start), (end - got_data), (end - start))
 
 
 #---------------------------------------------------------------------#
