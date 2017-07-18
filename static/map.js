@@ -1,7 +1,7 @@
 // declare variables outside of functions to be able to access them in console
 // or can use debugger; to have access where it stops the code
 var map, heatmapData, heatmap;
-var MIN_TEMP = -29.152003288269;
+var MIN_TEMP = -87;
 
 function changeMap(evt) {
 
@@ -27,8 +27,8 @@ function changeMap(evt) {
 
     heatmap = new google.maps.visualization.HeatmapLayer({
       data: heatmapData,
-      maxIntensity: 200,
-      radius: 30,
+      maxIntensity: 100,
+      radius: 20,
       dissipating: true,
       gradient: [
         'rgba(0, 255, 255, 0)',
@@ -70,7 +70,7 @@ function initMap() {
 
   map = new google.maps.Map(document.getElementById('map'), {
     center: {lat: 38.5, lng: -96},
-    zoom: 4,
+    zoom: 2,
     mapTypeId: 'terrain',
     mapTypeControl: false,
     zoomControl: false,
@@ -81,9 +81,9 @@ function initMap() {
 
   heatmap = new google.maps.visualization.HeatmapLayer({
     data: heatmapData,
-    maxIntensity: 200,
-    radius: 30,
-    dissipating: true,
+    maxIntensity: 100,
+    radius: 1,
+    // dissipating: true,
     gradient: [
       'rgba(0, 255, 255, 0)',
       'rgba(0, 255, 255, 1)',

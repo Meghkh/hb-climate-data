@@ -2,7 +2,7 @@
 
 from jinja2 import StrictUndefined
 
-from flask import Flask, render_template, request, flash
+from flask import Flask, render_template, request, flash, jsonify
 from flask_debugtoolbar import DebugToolbarExtension
 
 # from helper import get_year_data
@@ -59,18 +59,20 @@ def test_ft():
 def report_info():
     """JSON information about reports."""
 
-    print request.args
+    # print request.args
     # years = db.session.query(Report).distinct(Report.time).all()
     # print years
 
-    time_index = request.args.get('time_index')
-    print "time_index:", time_index
+    # time_index = request.args.get('time_index')
+    # print "time_index:", time_index
+
+    time_index = 0
 
     data = get_year_data(time_index)
     return data
 
 
-def get_year_data(index):
+def get_year_data(year):
     """Get climate data for the provided year from database."""
 
     reports = {
@@ -81,7 +83,7 @@ def get_year_data(index):
             'time_index': report.time_index,
             'abs_temp': report.abs_temp
         }
-        for report in db.session.query(Report).filter(Report.time_index == index).all()
+        for report in db.session.query(Report).filter(Report.time <= 1860.05).all() if int(report.lat) % 4 == 0 and int(report.lng) % 4 == 0
     }
 
     return jsonify(reports)
