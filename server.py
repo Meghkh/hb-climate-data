@@ -1,4 +1,4 @@
-"""Movie Ratings."""
+"""Climata."""
 
 from jinja2 import StrictUndefined
 
@@ -63,16 +63,30 @@ def report_info():
     # years = db.session.query(Report).distinct(Report.time).all()
     # print years
 
-    # time_index = request.args.get('time_index')
+    time_index = request.args.get('time_index')
     # print "time_index:", time_index
 
-    time_index = 0
+    # time_index = 0
 
     data = get_year_data(time_index)
     return data
 
 
-def get_year_data(year):
+# @app.route('/dates.json')
+# def date_info():
+#     """JSON information"""
+
+#     reports = {
+#         report.time_index: {
+#             'moyr': report.time
+#         }
+#         for report in db.session.query(Report).filter(Report.time_index.like(04166666667).distinct().all()
+#     }
+
+#     return jsonify(reports)
+
+
+def get_year_data(index):
     """Get climate data for the provided year from database."""
 
     reports = {
@@ -83,7 +97,7 @@ def get_year_data(year):
             'time_index': report.time_index,
             'abs_temp': report.abs_temp
         }
-        for report in db.session.query(Report).filter(Report.time <= 1860.05).all() if int(report.lat) % 4 == 0 and int(report.lng) % 4 == 0
+        for report in db.session.query(Report).filter(Report.time_index == index).all() if int(report.lat) % 4 == 0 and int(report.lng) % 4 == 0
     }
 
     return jsonify(reports)
