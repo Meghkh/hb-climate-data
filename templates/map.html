@@ -6,37 +6,22 @@
 
   {% block body %}
 
-  <script src="https://code.jquery.com/jquery.js"></script>
   <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
   <div>
     <h3>US Climate Data for year</h3>
     <!-- for JINJA - time_index % 120 == 0: add time and time_index to dropdown -->
     <!-- FLASK HAS A CACHING EXTENSION FLASK CACHE TO HOPEFULLY IMPROVE SPEED OF RENDERING -->
-    <select name="time_index" id="mapview">
-        <option value='0'>1850</option>
-        <option value='120'>1860</option>
-        <option value='240'>1870</option>
-        <option value='360'>1880</option>
-        <option value='480'>1890</option>
-        <option value='600'>1900</option>
-        <option value='720'>1910</option>
-        <option value='840'>1920</option>
-        <option value='960'>1930</option>
-        <option value='1080'>1940</option>
-        <option value='1200'>1950</option>
-        <option value='1320'>1960</option>
-        <option value='1440'>1970</option>
-        <option value='1560'>1980</option>
-        <option value='1680'>1990</option>
-        <option value='1800'>2000</option>
-        <option value='1920'>2010</option>
-    </select>
     <button id="selectmap">Show</button>
+    <select name="time_index" id="mapview">
+        {% for index, time_string in time_relations.items() %}
+          <option value='{{ index }}'>{{ time_string }}</option>
+        {% endfor %}
+    </select>
   </div>
   <span id="date">Point in Time: </span><span id="slider-date"></span>
-  <div id="slider">
+<!--   <div id="slider">
     <div id="custom-handle" class="ui-slider-handle"></div>
-  </div>
+  </div> -->
   <div id="map"></div>
   <div id="legend"><h3>Legend</h3>
     <div id="legendGradient"></div>

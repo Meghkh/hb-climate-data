@@ -182,17 +182,38 @@ function setLegendLabels() {
 // }
 
 // do setup on document load
+// http://api.jqueryui.com/slider/
 $( function() {
-  var handle = $( "#custom-handle" );
-  $( "#slider" ).slider({
-    create: function() {
-      handle.text( $( this ).slider( "value" ) );
-    },
-    slide: function( event, ui ) {
-      handle.text( ui.value );
+  var select = $("#mapview");
+  // var time = $("#mapview").val();
+  // console.log(time);
+  var slider = $("<div id='slider style='width=40em;'><div id='custom-handle' style='width:5em;' class='ui-slider-handle'></div></div>").insertAfter(select).slider({
+    min: 1850,
+    max: 2017,
+    range: "min",
+    value: select[0].selectedIndex + 1,
+    slide: function(event, ui){
+      select[0].selectedIndex = ui.value - 1;
+      var handle = $("#custom-handle");
+      handle.text(ui.value);
     }
   });
-} );
+
+
+  $("#mapview").on('change', function() {
+    slider.slider("value", this.selectedIndex + 1);
+  });
+});
+
+//   $("#slider").slider({
+//     create: function() {
+//       handle.text( $( this ).slider( "value" ) );
+//     },
+//     slide: function( event, ui ) {
+//       handle.text( ui.value );
+//     }
+//   });
+// } );
 
 // function createSlider(show_date) {
 //   $("#slider").slider({

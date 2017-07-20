@@ -3,6 +3,7 @@
 from jinja2 import StrictUndefined
 
 from flask import Flask, render_template, request, flash, jsonify
+from flask_cache import Cache
 from flask_debugtoolbar import DebugToolbarExtension
 
 # from helper import get_year_data
@@ -13,6 +14,7 @@ from model import connect_to_db, db, Report
 
 
 app = Flask(__name__)
+cache = Cache(app, config={'CACHE_TYPE': 'simple'})
 
 # Required to use Flask sessions and the debug toolbar
 app.secret_key = "ABC"
@@ -21,6 +23,8 @@ app.secret_key = "ABC"
 # silently. This is horrible. Fix this so that, instead, it raises an
 # error.
 app.jinja_env.undefined = StrictUndefined
+
+MONTH_STRINGS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 
 
 @app.route('/')
@@ -31,21 +35,33 @@ def index():
 
 
 @app.route('/map')
-def test_map():
-    """Show test map."""
+def display_map():
+    """Show map based on data for input point in time."""
 
-    print request.args
+    # https://stackoverflow.com/questions/22275412/sqlalchemy-return-all-distinct-column-values
+    query = db.session.query(Report.time_index.distinct().label("time_index"))
+    time_indices = [row.time_index for row in query.all()]
+    print len(time_indices), sorted(time_indices)
+
+    time_relations = {}
+
+    for index in time_indices:
+        month = index % 12
+        year = index / 12 + 1850
+        time_relations[index] = MONTH_STRINGS[month] + ' ' + str(year)
+
+    print time_relations
+
     time_index = request.args.get('time_index')
-    # session['year'] = year
 
-    # session.clear()
-
-    data = get_year_data(time_index)
-    print data
-
-    #call helper fn passed a year to get data from db ()
-
-    return render_template("map.html", time_index=time_index)
+    if time_index in time_relations:
+        # call helper fn passed a year to get data from db ()
+        data = get_year_data(time_index)
+        return render_template("map.html", time_index=time_index, time_relations=time_relations)
+    else:
+        message = "Currently no data for {}, showing data for 1850".format(time_index)
+        flash(message)
+        return render_template("map.html", time_index=0, time_relations=time_relations)
 
 
 @app.route('/ft')
